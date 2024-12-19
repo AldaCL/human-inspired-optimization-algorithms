@@ -1,14 +1,16 @@
 import random
 import math
 import numpy as np
+import matplotlib.pyplot as plt
+import time 
 
 # Parámetros globales
 POPSIZE = 30               # Tamaño de la población
-FES = 300000               # Máximo de evaluaciones de función
+FES = 300                  # Máximo de evaluaciones de función
 TIMES = 30                 # Número de ejecuciones
-DIMS = 30                  # Número de variables del problema
-p_i = 0.7                  # Probabilidad de imitación
-p_r = 0.2                  # Probabilidad de randomización
+DIMS = 20                  # Número de variables del problema
+p_i = 0.2                 # Probabilidad de imitación
+p_r = 0.9                  # Probabilidad de randomización
 SN1 = POPSIZE // 2         # Número de miembros modelo
 SN2 = POPSIZE - SN1        # Número de no-modelos
 lbound, ubound = -100, 100 # Límites de variables
@@ -29,6 +31,13 @@ gbestval = float('inf')
 gbestind = -1
 t_Val = [0.0] * DIMS
 AT = mAT = 0
+
+# Almacenamiento de datos de todas las ejecuciones
+all_runs_data = {
+    "best_fitness_per_run": [],
+    "average_fitness_per_run": [],
+    "diversity_per_run": []
+}
 
 # Función objetivo, reemplaza esta con tu función
 def function_name(pos, dim):
@@ -118,17 +127,89 @@ def Motivation():
                 gbestval = pop[i].fit
                 gbestind = i
 
+# Almacenar datos de iteración
+def StoreIterationData(run_data):
+    best = min(ind.fit for ind in pop)
+    avg = np.mean([ind.fit for ind in pop])
+    diversity = np.std([ind.fit for ind in pop])
+    run_data["best_fitness"].append(best)
+    run_data["average_fitness"].append(avg)
+    run_data["diversity"].append(diversity)
+
 # Proceso principal
 def Process():
+    run_data = {
+        "best_fitness": [],
+        "average_fitness": [],
+        "diversity": []
+    }
     Initialize()
     Evaluate()
     while fes < FES:
         Attention()
         Reproduction_and_Reinforcement()
         Motivation()
+        StoreIterationData(run_data)
+    return run_data
+
+# Gráficas
+def PlotResults(all_runs_data):
+    
+    #Plot benchmark function
+    x = np.linspace(lbound, ubound, 100)
+    y = np.linspace(lbound, ubound, 100)
+    X, Y = np.meshgrid(x, y)
+    Z = np.zeros(X.shape)
+    for i in range(X.shape[0]):
+        for j in range(X.shape[1]):
+            Z[i, j] = function_name([X[i, j], Y[i, j]], 2)
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.plot_surface(X, Y, Z, cmap='viridis')
+    ax.set_xlabel('X')
+    ax.set_ylabel('Y')
+    ax.set_zlabel('Z')
+    plt.show()
+    
+    # Graficar convergencia promedio
+    avg_best_fitness = np.mean(all_runs_data["best_fitness_per_run"], axis=0)
+    avg_average_fitness = np.mean(all_runs_data["average_fitness_per_run"], axis=0)
+    avg_diversity = np.mean(all_runs_data["diversity_per_run"], axis=0)
+
+    plt.figure()
+    plt.plot(avg_best_fitness, label="Average Best Fitness")
+    plt.plot(avg_average_fitness, label="Average Population Fitness")
+    plt.xlabel("Iteration")
+    plt.ylabel("Fitness")
+    plt.title("Convergence Over All Runs")
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+
+    # save figure to file with a timestamp in the name
+    timestamp = time.strftime("%Y%m%d-%H%M%S")
+    plt.savefig(f"convergence_{timestamp}.png")
+    
+    plt.figure()
+    plt.plot(avg_diversity, label="Average Diversity")
+    plt.xlabel("Iteration")
+    plt.ylabel("Diversity (Std. Dev.)")
+    plt.title("Diversity Over All Runs")
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+    
+    # save figure to file with a timestamp in the name
+    plt.savefig(f"diversity_{timestamp}.png")
 
 # Main
 if __name__ == "__main__":
     for run in range(TIMES):
-        Process()
-        print(f"Mejor valor en ejecución {run + 1}: {gbestval}")
+        print(f"Running iteration {run + 1}/{TIMES}...")
+        run_data = Process()
+        all_runs_data["best_fitness_per_run"].append(run_data["best_fitness"])
+        all_runs_data["average_fitness_per_run"].append(run_data["average_fitness"])
+        all_runs_data["diversity_per_run"].append(run_data["diversity"])
+
+    # Generar gráficos al final
+    PlotResults(all_runs_data)
