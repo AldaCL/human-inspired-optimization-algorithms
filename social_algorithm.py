@@ -6,11 +6,11 @@ import time
 
 # Parámetros globales
 POPSIZE = 30               # Tamaño de la población
-FES = 300                  # Máximo de evaluaciones de función
+FES = 10000                  # Máximo de evaluaciones de función
 TIMES = 30                 # Número de ejecuciones
 DIMS = 20                  # Número de variables del problema
-p_i = 0.2                 # Probabilidad de imitación
-p_r = 0.9                  # Probabilidad de randomización
+p_i = 0.9                 # Probabilidad de imitación
+p_r = 0.1                  # Probabilidad de randomización
 SN1 = POPSIZE // 2         # Número de miembros modelo
 SN2 = POPSIZE - SN1        # Número de no-modelos
 lbound, ubound = -100, 100 # Límites de variables
@@ -175,6 +175,7 @@ def PlotResults(all_runs_data):
     avg_best_fitness = np.mean(all_runs_data["best_fitness_per_run"], axis=0)
     avg_average_fitness = np.mean(all_runs_data["average_fitness_per_run"], axis=0)
     avg_diversity = np.mean(all_runs_data["diversity_per_run"], axis=0)
+    timestamp = time.strftime("%Y%m%d-%H%M%S")
 
     plt.figure()
     plt.plot(avg_best_fitness, label="Average Best Fitness")
@@ -184,12 +185,9 @@ def PlotResults(all_runs_data):
     plt.title("Convergence Over All Runs")
     plt.legend()
     plt.grid(True)
+    plt.savefig(f"convergence_{timestamp}.png")
     plt.show()
 
-    # save figure to file with a timestamp in the name
-    timestamp = time.strftime("%Y%m%d-%H%M%S")
-    plt.savefig(f"convergence_{timestamp}.png")
-    
     plt.figure()
     plt.plot(avg_diversity, label="Average Diversity")
     plt.xlabel("Iteration")
@@ -197,10 +195,10 @@ def PlotResults(all_runs_data):
     plt.title("Diversity Over All Runs")
     plt.legend()
     plt.grid(True)
+    plt.savefig(f"diversity_{timestamp}.png")
     plt.show()
     
     # save figure to file with a timestamp in the name
-    plt.savefig(f"diversity_{timestamp}.png")
 
 # Main
 if __name__ == "__main__":
@@ -213,3 +211,5 @@ if __name__ == "__main__":
 
     # Generar gráficos al final
     PlotResults(all_runs_data)
+    # Save results to file
+    np.save("all_runs_data.npy", all_runs_data)
