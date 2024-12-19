@@ -53,6 +53,6 @@ Convergencia:
 ![alt text](https://github.com/AldaCL/human-inspired-optimization-algorithms/blob/main/convergence_20241219-093501.png?raw=true)
 
 Diversidad:
-![alt text](https://github.com/AldaCL/human-inspired-optimization-algorithms/blob/main/diversity_220241219-093501.png?raw=true)
+![alt text](https://github.com/AldaCL/human-inspired-optimization-algorithms/blob/main/diversity_20241219-093501.png?raw=true)
 
 
