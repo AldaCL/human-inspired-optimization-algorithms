@@ -6,11 +6,11 @@ import time
 
 # Parámetros globales
 POPSIZE = 30               # Tamaño de la población
-FES = 10000                  # Máximo de evaluaciones de función
+FES = 10000                 # Máximo de evaluaciones de función
 TIMES = 30                 # Número de ejecuciones
-DIMS = 20                  # Número de variables del problema
-p_i = 0.9                 # Probabilidad de imitación
-p_r = 0.1                  # Probabilidad de randomización
+DIMS = 10                  # Número de variables del problema
+p_i = 0.9                  # Probabilidad de imitación
+p_r = 0.9                  # Probabilidad de randomización
 SN1 = POPSIZE // 2         # Número de miembros modelo
 SN2 = POPSIZE - SN1        # Número de no-modelos
 lbound, ubound = -100, 100 # Límites de variables
@@ -40,8 +40,9 @@ all_runs_data = {
 }
 
 # Función objetivo, reemplaza esta con tu función
-def function_name(pos, dim):
-    return sum(x**2 for x in pos)  # Ejemplo: función esfera
+def function_name(x, dim):
+    return (4 - 2.1*x[0]**2 + x[0]**4/3)*x[0]**2 + x[0]*x[1]\
+           + (-4 + 4*x[1]**2)*x[1]**2
 
 # Funciones auxiliares
 def randval(low, high):
@@ -156,8 +157,8 @@ def Process():
 def PlotResults(all_runs_data):
     
     #Plot benchmark function
-    x = np.linspace(lbound, ubound, 100)
-    y = np.linspace(lbound, ubound, 100)
+    x = np.linspace(lbound + 200, ubound+ 200, 100)
+    y = np.linspace(lbound+ 200 , ubound + 200, 100)
     X, Y = np.meshgrid(x, y)
     Z = np.zeros(X.shape)
     for i in range(X.shape[0]):
